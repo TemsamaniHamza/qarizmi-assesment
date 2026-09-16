@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# local assessment documents
+/docs/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
