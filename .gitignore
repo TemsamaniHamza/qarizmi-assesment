@@ -26,6 +26,7 @@
 
 # local assessment documents
 /docs/
+/.notes/
 
 # debug
 npm-debug.log*
