@@ -51,6 +51,20 @@ export type ValidationResult =
   | Readonly<{ ok: true; data: WorkbookData }>
   | Readonly<{ ok: false; errors: readonly ValidationError[] }>;
 
+/** Untrusted extracted values plus Excel locations; no XLSX dependency. */
+export type WorkbookRow = Readonly<{
+  sheet: ValidationError["sheet"];
+  values: Readonly<Record<string, unknown>>;
+  cells: Readonly<Record<string, string>>;
+}>;
+
+export type WorkbookRows = Readonly<{
+  farms: readonly WorkbookRow[];
+  clients: readonly WorkbookRow[];
+  stations: readonly WorkbookRow[];
+  referencePrices: readonly WorkbookRow[];
+}>;
+
 export type Allocation = Readonly<{
   farmId: string;
   segment: Segment;
