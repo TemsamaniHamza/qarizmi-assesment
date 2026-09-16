@@ -87,6 +87,33 @@ describe("pure workbook validation", () => {
     expect(validateWorkbook(change(fixture(), "clients", "client_id", "Farm-one")).ok).toBe(true);
   });
 
+  for (const [table, field, sheet, entityId] of [
+    ["farms", "farm_name", "Farms", "Farm-one"],
+    ["clients", "client_name", "Clients", "Client-one"],
+  ] as const) {
+    it.each([undefined, "", "   ", 123])(`rejects missing/invalid ${field}: %s`, (value) => {
+      expectInvalid(change(fixture(), table, field, value), { sheet, entityId, field, cell: "B5" });
+    });
+  }
+
+  // Catch a validator that checks A correctly but skips/mislabels the other columns.
+  for (const [actualField, actualCell, mixField, mixCell] of [
+    ["actual_B_t", "I5", "expected_B_pct", "E5"],
+    ["actual_C_t", "J5", "expected_C_pct", "F5"],
+    ["actual_D_t", "K5", "expected_D_pct", "G5"],
+  ] as const) {
+    it.each([undefined, -5, 12, Infinity])(`rejects invalid ${actualField}: %s`, (value) => {
+      expectInvalid(change(fixture(), "farms", actualField, value), {
+        sheet: "Farms", entityId: "Farm-one", field: actualField, cell: actualCell,
+      });
+    });
+    it.each([undefined, -0.1, 1.1])(`rejects invalid ${mixField}: %s`, (value) => {
+      expectInvalid(change(fixture(), "farms", mixField, value), {
+        sheet: "Farms", entityId: "Farm-one", field: mixField, cell: mixCell,
+      });
+    });
+  }
+
   for (const [table, field, sheet, cell] of [
     ["farms", "actual_A_t", "Farms", "H5"],
     ["clients", "demand_t", "Clients", "E5"],
