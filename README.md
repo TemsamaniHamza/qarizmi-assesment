@@ -4,6 +4,8 @@ A Production–Commercial workspace for the fictional Qarizmi Atlas Fresh assess
 
 **Production and Commercial retain approval of execution.** The application does not approve plans, contact farms or clients, or write to external systems. Planning and deterministic summaries work without an API key or paid service.
 
+[Watch the walkthrough video](https://drive.google.com/file/d/16CGe3zhHjof9m1QJw8E3vVdfed9lOXaz/view?usp=sharing).
+
 ## Prerequisites
 
 - Git, Node.js and npm. Recorded local checks used **Node.js 20.19.2 and npm 9.2.0 on Linux**. The installed Next.js version requires Node.js **20.9.0 or newer**.
@@ -190,7 +192,7 @@ Finish the mandatory acceptance and delivery work first. These are future propos
 | 3:05–3:40 | Open the floating assistant, ask about C02 and expand supporting records. Show the actual no-key/model state honestly; try an unsupported weather or approval question. |
 | 3:40–4:00 | Show Reset and mention verified tests, pending checks and human execution approval. Do not present an unperformed check as complete. |
 
-This is a recording outline, not evidence that the walkthrough has been recorded or shared.
+The owner has recorded and edited the walkthrough linked above. This table is the preparation outline; evaluator access to the video still needs confirmation.
 
 ## AI coding assistance and owner-supplied delivery details
 
@@ -199,7 +201,7 @@ OpenAI Codex assisted with planning, implementation, automated tests, defect inv
 | Detail | Status to complete before submission |
 |---|---|
 | Repository | `https://github.com/TemsamaniHamza/qarizmi-assesment` — owner must confirm evaluator access/visibility and provide any invitation instructions. No app login is implemented. |
-| 3–5 minute walkthrough URL | **Pending owner recording/upload and access check.** |
+| Walkthrough URL | [Watch the edited walkthrough](https://drive.google.com/file/d/16CGe3zhHjof9m1QJw8E3vVdfed9lOXaz/view?usp=sharing). Recorded and edited; evaluator access check pending. |
 | Approximate total active time | **Pending owner input**, including reading, planning, implementation, testing and delivery. The 10–12 hour brief is a limit, not a measured time claim. |
 | Personal/manual verification | **Pending owner record** of browser checks and any live model call; do not infer these from the test count. |
 | Optional live URL | Not provided; optional deployment omitted. |
