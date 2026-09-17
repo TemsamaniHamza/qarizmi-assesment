@@ -1,8 +1,11 @@
+import type { ClientSummary } from "./client-summary";
 import type { PlanningEvidence } from "./evidence";
 import type { FarmComparison, PlanningResult, ProductionComparison, ValidationError, WorkbookData } from "./types";
 
 export type WorkflowAction = "load" | "plan";
 export type WorkspaceData = {
+  sourceRevision: string;
+  clientSummary: ClientSummary | null;
   source: WorkbookData;
   farms: readonly FarmComparison[];
   production: ProductionComparison;

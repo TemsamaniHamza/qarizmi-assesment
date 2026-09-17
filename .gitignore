@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.env.local
+.env*.local
+
+# Public, secret-free configuration template
+!.env.example

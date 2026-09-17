@@ -36,6 +36,7 @@ describe("workbook workflow routes", () => {
     expect(body.data.production).toMatchObject({ expectedTotalT: 600, actualTotalT: 560 });
     expect(body.data.farms[0].expectedT.A).toBe(31.5);
     expect(body.data.plan).toBeNull();
+    expect(body.data.clientSummary).toBeNull();
     expect(body.data.evidence).toBeNull();
     expect(plan).not.toHaveBeenCalled();
   });
@@ -43,6 +44,7 @@ describe("workbook workflow routes", () => {
   it("reads changed bytes on every load and replan instead of retaining a snapshot", async () => {
     const first = await (await generate()).json();
     expect(first.data.plan.kpis.exportedT).toBe(500);
+    expect(first.data.clientSummary).toEqual({ completedClients: 7, unmetDemandT: 60 });
     vi.mocked(readFile).mockResolvedValue(changedCell("Station", "B5", 495));
     const loaded = await (await load()).json();
     expect(loaded.data.source.station.exportConditioningCapacityT).toBe(495);
@@ -50,6 +52,7 @@ describe("workbook workflow routes", () => {
     expect(response.headers.get("cache-control")).toBe("no-store");
     const body = await response.json();
     expect(body.data.plan.kpis).toMatchObject({ exportedT: 495, localT: 65 });
+    expect(body.data.clientSummary).toEqual({ completedClients: 7, unmetDemandT: 65 });
     expect(body.data.evidence.localResiduals.find((row: { farmId: string }) => row.farmId === "F15").localT).toBe(10);
     expect(body.data.plan.clients.find((row: { clientId: string }) => row.clientId === "C08").allocatedT).toBe(15);
     expect(readFile).toHaveBeenCalledTimes(3);

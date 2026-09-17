@@ -1,4 +1,6 @@
 // Server orchestration only. The browser imports workflow-types, never this file.
+import { summarizeClients } from "./client-summary";
+import { createHash } from "node:crypto";
 import { buildEvidence } from "./evidence";
 import { compareProduction } from "./compare";
 import { plan } from "./plan";
@@ -19,6 +21,8 @@ export async function runWorkflow(action: WorkflowAction): Promise<Response> {
     const result = action === "plan" ? plan(loaded.data) : null;
     const comparison = result ?? compareProduction(loaded.data);
     return respond({ ok: true, data: {
+      sourceRevision: createHash("sha256").update(JSON.stringify(loaded.data)).digest("hex"),
+      clientSummary: result ? summarizeClients(result.clients) : null,
       source: loaded.data, farms: comparison.farms, production: comparison.production, plan: result,
       evidence: result ? buildEvidence(loaded.data, result) : null,
     } });
