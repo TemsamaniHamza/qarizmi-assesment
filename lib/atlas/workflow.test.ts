@@ -36,6 +36,7 @@ describe("workbook workflow routes", () => {
     expect(body.data.production).toMatchObject({ expectedTotalT: 600, actualTotalT: 560 });
     expect(body.data.farms[0].expectedT.A).toBe(31.5);
     expect(body.data.plan).toBeNull();
+    expect(body.data.evidence).toBeNull();
     expect(plan).not.toHaveBeenCalled();
   });
 
@@ -49,6 +50,7 @@ describe("workbook workflow routes", () => {
     expect(response.headers.get("cache-control")).toBe("no-store");
     const body = await response.json();
     expect(body.data.plan.kpis).toMatchObject({ exportedT: 495, localT: 65 });
+    expect(body.data.evidence.localResiduals.find((row: { farmId: string }) => row.farmId === "F15").localT).toBe(10);
     expect(body.data.plan.clients.find((row: { clientId: string }) => row.clientId === "C08").allocatedT).toBe(15);
     expect(readFile).toHaveBeenCalledTimes(3);
   });
@@ -85,5 +87,20 @@ describe("workbook workflow routes", () => {
     expect(failed.status).toBe(422);
     expect(await failed.json()).not.toHaveProperty("data");
     expect((await generate()).status).toBe(200);
+  });
+
+  it("clears the response after a successful plan followed by server failure, then replans current data", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await generate()).status).toBe(200);
+    vi.mocked(readFile).mockRejectedValueOnce(new Error("controlled read failure"));
+    const failed = await generate();
+    expect(failed.status).toBe(500);
+    expect(await failed.json()).toEqual({
+      ok: false, kind: "server", message: "The workbook could not be processed. Please retry.",
+    });
+    vi.mocked(readFile).mockResolvedValue(changedCell("Station", "B5", 495));
+    const recovered = await generate();
+    expect(recovered.status).toBe(200);
+    expect((await recovered.json()).data.plan.kpis).toMatchObject({ exportedT: 495, localT: 65 });
   });
 });

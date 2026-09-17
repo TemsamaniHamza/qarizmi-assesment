@@ -1,3 +1,4 @@
+import type { PlanningEvidence } from "./evidence";
 import type { FarmComparison, PlanningResult, ProductionComparison, ValidationError, WorkbookData } from "./types";
 
 export type WorkflowAction = "load" | "plan";
@@ -6,6 +7,7 @@ export type WorkspaceData = {
   farms: readonly FarmComparison[];
   production: ProductionComparison;
   plan: PlanningResult | null;
+  evidence: PlanningEvidence | null;
 };
 export type WorkflowResponse =
   | { ok: true; data: WorkspaceData }

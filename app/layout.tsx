@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Atlas Fresh",
-  description: "Production comparison and deterministic export planning",
+  title: "Atlas Fresh | Daily export planner",
+  description: "Compare apple receipts, review client allocations and local residuals, and prepare the daily Production–Commercial decision.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
