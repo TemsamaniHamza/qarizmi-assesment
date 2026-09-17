@@ -86,10 +86,6 @@ export default function Home() {
               <button className="button button-quiet" disabled={busy || state.status === "idle"} onClick={() => setState({ status: "idle" })}>Reset</button>
             </div>
         </section>
-        <details id="assistant" className="assistant-disclosure">
-          <summary>Ask about this plan <span>Client shortages, allocations and local sales</span></summary>
-          {planned ? <AssistantPanel key={state.data.sourceRevision} sourceRevision={state.data.sourceRevision} /> : <p className="assistant-start">{busy ? "Your data is being updated. Please wait." : "Load the workbook and select Generate Plan to ask a question."}</p>}
-        </details>
         <section aria-labelledby="workflow-status" aria-busy={busy} className="workspace-body">
           <div className="workspace-status">
             <h2 id="workflow-status" ref={statusHeading} tabIndex={-1} className={planned ? "sr-only" : undefined}><span className={`status-dot ${state.status}`} aria-hidden="true" />{statusTitle}</h2>
@@ -121,6 +117,22 @@ export default function Home() {
         </section>
         <footer className="app-footer"><span>Atlas Fresh · Daily planning workspace</span><span>Execution approval remains with Production and Commercial.</span></footer>
       </main>
+      <button className="assistant-bubble" popoverTarget="assistant" aria-label="Ask about this plan">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M20 11.5a8 8 0 0 1-8 8H5l-3 3v-11a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8Z" />
+          <path d="M7 9h8M7 13h5" strokeLinecap="round" />
+        </svg>
+        <span>Ask about this plan</span>
+      </button>
+      <div id="assistant" popover="auto" role="dialog" aria-labelledby="assistant-bubble-title" className="assistant-popover">
+        <div className="assistant-popover-header">
+          <div><h2 id="assistant-bubble-title">Ask about this plan</h2><p>Client shortages, allocations and local sales</p></div>
+          <button className="assistant-close" popoverTarget="assistant" popoverTargetAction="hide" aria-label="Close planning assistant">×</button>
+        </div>
+        <div className="assistant-popover-body">
+          {planned ? <AssistantPanel key={state.data.sourceRevision} sourceRevision={state.data.sourceRevision} /> : <p className="assistant-start">{busy ? "Your data is being updated. Please wait." : "Load the workbook and select Generate Plan to ask a question."}</p>}
+        </div>
+      </div>
     </>
   );
 }

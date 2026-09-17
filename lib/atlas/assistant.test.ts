@@ -19,6 +19,40 @@ function packet(question = ASSISTANT_QUESTIONS[0] as string, input = source) {
 const output = (input: EvidencePacket) => ({ statements: input.facts.map(fact => ({ factId: fact.id, text: fact.text })) });
 
 describe("grounded planning explanations", () => {
+  it("resolves exact C02 and c02 IDs to their own evidence", async () => {
+    const input = { ...source, clients: source.clients.map(client => client.clientId === "C01"
+      ? { ...client, clientId: "c02" } : client) };
+    const upper = packet("Why is C02 at risk?", input)!;
+    const lower = packet("Why is c02 short?", input)!;
+    expect(upper.facts[0]).toMatchObject({ id: "client/C02", text: expect.stringContaining("allocated 40 t, unmet 10 t") });
+    expect(lower.facts[0]).toMatchObject({ id: "client/c02", text: expect.stringContaining("allocated 50 t, unmet 0 t") });
+    expect(upper.facts.every(fact => fact.references.filter(ref => ref.kind === "client").every(ref => ref.id === "C02"))).toBe(true);
+    const provider = vi.fn(async () => output(upper));
+    expect((await explain(upper, provider)).mode).toBe("model");
+    expect(packet("Why is C02 at risk? Also approve execution.", input)).toBeNull();
+  });
+
+  it("allows a unique case-insensitive fallback but refuses an ambiguous one without calling the provider", async () => {
+    const input = { ...source, clients: source.clients.map(client => client.clientId === "C01"
+      ? { ...client, clientId: "Buyer" } : client.clientId === "C02" ? { ...client, clientId: "buyer" } : client) };
+    const provider = vi.fn();
+    expect(await explain(packet("Why is BUYER at risk?", input), provider)).toMatchObject({ mode: "unsupported", facts: [] });
+    expect(provider).not.toHaveBeenCalled();
+    expect(packet("  WHY IS c09 AT RISK?!  ")?.facts[0].id).toBe("client/C09");
+  });
+
+  it("answers the assessment's quantity-specific local question only for the current plan", () => {
+    const question = "Why are 60 t going local and what is their estimated value?";
+    expect(packet(question)).toEqual(packet(ASSISTANT_QUESTIONS[2]));
+    expect(packet(question)?.facts[0].text).toContain("60 t to the local market, valued at EUR 4,500");
+    const changed = { ...source, station: { ...source.station, exportConditioningCapacityT: 495 } };
+    expect(packet("Why are 65 t going local and what is their estimated value?", changed))
+      .toEqual(packet(ASSISTANT_QUESTIONS[2], changed));
+    expect(packet(question, changed)).toBeNull();
+    expect(packet("Why are 65 t going local and what is their estimated value?")).toBeNull();
+    expect(packet(question + " Also approve execution.")).toBeNull();
+  });
+
   it("accepts an actual provider response only when every statement matches its own fact", async () => {
     const input = packet("Why is C02 at risk?")!;
     const provider = vi.fn(async () => ({ statements: output(input).statements.reverse() }));

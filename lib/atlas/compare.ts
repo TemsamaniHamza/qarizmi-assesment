@@ -1,4 +1,5 @@
 import type { ProductionComparison, Segment, SegmentValues, WorkbookData } from "./types";
+import { assertFiniteCalculatedValues } from "./finite-values";
 
 const SEGMENTS: readonly Segment[] = ["A", "B", "C", "D"];
 
@@ -37,5 +38,7 @@ export function compareProduction(input: WorkbookData) {
     segmentValues((segment) => farms.reduce((total, farm) => total + farm.expectedT[segment], 0)),
     segmentValues((segment) => farms.reduce((total, farm) => total + farm.actualT[segment], 0)),
   );
-  return { farms, production };
+  const result = { farms, production };
+  assertFiniteCalculatedValues(result, "comparison");
+  return result;
 }

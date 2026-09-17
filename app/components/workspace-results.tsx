@@ -30,6 +30,7 @@ export function WorkspaceResults({ data }: { data: WorkspaceData }) {
     <section id="overview" tabIndex={-1} aria-labelledby="overview-title">
       <div className="section-heading">
         <h2 id="overview-title" tabIndex={-1}>Today’s operational situation</h2>
+        <span className="health">Workbook validated{plan ? " · Plan ready" : ""}</span>
       </div>
       <div className="situation-summary">
         <section aria-labelledby="production-summary-title">
@@ -49,6 +50,12 @@ export function WorkspaceResults({ data }: { data: WorkspaceData }) {
           <p className="summary-note">Unmet demand is unfilled client orders, not the production forecast gap.</p>
         </section>
       </div>
+      {plan && <section aria-label="Export rate and commercial value"><dl className="value-strip">
+        <div><dt>Export rate · share of actual</dt><dd>{rate(plan.kpis.exportRate)}</dd></div>
+        <div><dt>Export revenue</dt><dd>{money.format(plan.kpis.exportRevenueEur)}</dd></div>
+        <div><dt>Local market value</dt><dd>{money.format(plan.kpis.localValueEur)}</dd></div>
+        <div><dt>Total value · export + local</dt><dd>{money.format(plan.kpis.totalValueEur)}</dd></div>
+      </dl></section>}
       <section id="attention" aria-labelledby="attention-title" className="attention-section">
         <div className="section-heading"><h3 id="attention-title">Needs attention</h3><p className="section-note">{plan ? "Select a client to inspect the allocation evidence." : "Generate Plan to identify affected clients."}</p></div>
         {risk && (risk.length ? <div className="attention-list">{risk.map(client => {
@@ -104,12 +111,7 @@ export function WorkspaceResults({ data }: { data: WorkspaceData }) {
           <td>{result ? shortageText(result.shortageReason, client.requestedSegment, client.acceptanceMode) : "—"}</td>
         </tr>)}</tbody>
       </table></TableFrame>
-      {plan && <details className="secondary-details"><summary>Export rate & commercial value</summary><dl className="value-strip">
-        <div><dt>Export rate · share of actual</dt><dd>{rate(plan.kpis.exportRate)}</dd></div>
-        <div><dt>Export revenue</dt><dd>{money.format(plan.kpis.exportRevenueEur)}</dd></div>
-        <div><dt>Local market value</dt><dd>{money.format(plan.kpis.localValueEur)}</dd></div>
-        <div><dt>Total value · export + local</dt><dd>{money.format(plan.kpis.totalValueEur)}</dd></div>
-      </dl></details>}
+
       <p className="table-hint">Wide table: focus the table area and use ← → to scroll. Select a client ID to inspect its trace.</p>
     </section>
 

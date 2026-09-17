@@ -16,9 +16,18 @@ const ref = (kind: EvidenceReference["kind"], id: string): EvidenceReference => 
 /** Strict supported scope: never reinterpret a weather/scenario/action request as a supported question. */
 export function buildExplanationPacket(question: string, source: WorkbookData, result: PlanningResult, evidence: PlanningEvidence): EvidencePacket | null {
   const normalized = normalize(question);
-  const topic = ASSISTANT_QUESTIONS.findIndex(item => normalize(item) === normalized);
-  const clientMatch = /^why is (.+) (?:at risk|short)$/.exec(normalized);
-  const selected = clientMatch && evidence.clients.find(row => row.client.clientId.toLowerCase() === clientMatch[1]);
+  // Accept the brief's quantity-specific wording only when it describes this plan.
+  const localQuestion = `Why are ${n(result.kpis.localT)} t going local and what is their estimated value?`;
+  const topic = normalized === normalize(localQuestion) ? 2
+    : ASSISTANT_QUESTIONS.findIndex(item => normalize(item) === normalized);
+  // Match question wording without changing the spelling of the referenced ID.
+  const clientMatch = /^why\s+is\s+(.+?)\s+(?:at\s+risk|short)[?!.]*$/i.exec(question.trim());
+  const clientId = clientMatch?.[1];
+  let selected = evidence.clients.find(row => row.client.clientId === clientId);
+  if (!selected && clientId !== undefined) {
+    const matches = evidence.clients.filter(row => row.client.clientId.toLowerCase() === clientId.toLowerCase());
+    if (matches.length === 1) selected = matches[0];
+  }
   if (topic < 0 && !selected) return null;
   const facts: ExplanationFact[] = [];
   const add = (id: string, text: string, references: EvidenceReference[]) => facts.push({ id, text, references });

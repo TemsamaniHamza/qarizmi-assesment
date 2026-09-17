@@ -212,16 +212,13 @@ h1 { font-size: 27px; margin: 0; }
 .attention-reason { font-size: 13px; line-height: 1.5; }
 .attention-link { font-size: 12px; color: var(--green); text-decoration: underline; text-underline-offset: 4px; white-space: nowrap; }
 .secondary-details { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 16px; }
-.secondary-details > summary, .trace-disclosure > summary, .assistant-disclosure > summary { font-size: 14px; font-weight: 600; padding: 6px 0; cursor: pointer; }
-.secondary-details > summary span, .trace-disclosure > summary span, .assistant-disclosure > summary span { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 10px; }
+.secondary-details > summary, .trace-disclosure > summary { font-size: 14px; font-weight: 600; padding: 6px 0; cursor: pointer; }
+.secondary-details > summary span, .trace-disclosure > summary span { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 10px; }
 .secondary-details .value-strip { margin-top: 12px; }
 .trace-disclosure { min-width: 0; }
 .trace-disclosure > summary { padding: 16px 20px; background: white; border: 1px solid var(--line); border-radius: 8px; }
 .trace-disclosure[open] > summary { margin-bottom: 12px; }
-.assistant-disclosure { min-width: 0; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-.assistant-disclosure > summary { color: var(--green); padding: 12px 16px; }
-.assistant-disclosure .assistant-panel { border: 0; border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; }
-.assistant-start { padding: 0 16px 16px; font-size: 13px; color: var(--muted); }
+.assistant-start { padding: 20px; font-size: 13px; color: var(--muted); }
 .workspace-results thead th { font-size: 11px; }
 .client-status { font-size: 11px; }
 @media (min-width: 801px) and (max-width: 1100px) {
@@ -240,5 +237,26 @@ h1 { font-size: 27px; margin: 0; }
   .attention-row { grid-template-columns: 1fr 1.5fr; gap: 8px 16px; }
   .attention-reason { grid-column: 1 / -1; }
   .attention-link { grid-column: 1 / -1; }
-  .secondary-details > summary span, .trace-disclosure > summary span, .assistant-disclosure > summary span { display: block; margin-left: 0; margin-top: 4px; }
+  .secondary-details > summary span, .trace-disclosure > summary span { display: block; margin-left: 0; margin-top: 4px; }
+}
+
+/* Keep the assistant reachable while the committee scrolls through the plan. */
+html { scroll-padding-bottom: 100px; }
+.app-shell { padding-bottom: 100px; }
+.assistant-bubble { position: fixed; right: 24px; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 30; display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 14px 20px; border: 1px solid #194632; border-radius: 999px; background: var(--green); color: white; font: inherit; font-size: 14px; font-weight: 600; box-shadow: 0 6px 24px #1c2c2933; }
+.assistant-bubble:hover { background: #194632; }
+.assistant-bubble svg { flex-shrink: 0; }
+.assistant-popover { position: fixed; inset: auto 24px calc(max(24px, env(safe-area-inset-bottom)) + 66px) auto; margin: 0; padding: 0; width: min(460px, calc(100vw - 32px)); max-height: min(660px, calc(100dvh - 116px)); overflow: hidden; border: 1px solid #bccdc1; border-radius: 16px; color: var(--foreground); background: white; box-shadow: 0 16px 56px #1c2c2933; }
+.assistant-popover:popover-open { display: flex; flex-direction: column; }
+.assistant-popover-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid var(--line); background: var(--green-light); }
+.assistant-popover-header h2 { margin: 0; font-size: 17px; }
+.assistant-popover-header p { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.assistant-close { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 1px solid #bccdc1; border-radius: 50%; background: white; color: var(--foreground); font-size: 24px; line-height: 1; }
+.assistant-close:hover { background: #dcebe0; }
+.assistant-popover-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.assistant-popover .assistant-panel { border: 0; border-radius: 0; padding: 20px; }
+.assistant-popover .assistant-input-row { flex-direction: column; }
+@media (max-width: 520px) {
+  .assistant-bubble { right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); }
+  .assistant-popover { right: 16px; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 66px); }
 }

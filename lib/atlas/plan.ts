@@ -1,4 +1,5 @@
 import { compareProduction } from "./compare";
+import { assertFiniteCalculatedValues } from "./finite-values";
 import type {
   Allocation,
   ClientResult,
@@ -104,7 +105,7 @@ export function plan(input: WorkbookData): PlanningResult {
   const localT = balances.reduce((total, row) => total + row.localT, 0);
   const localValueEur = balances.reduce((total, row) => total + row.localValueEur, 0);
 
-  return {
+  const result: PlanningResult = {
     allocations, balances, clients, farms, production,
     kpis: {
       exportedT,
@@ -119,4 +120,6 @@ export function plan(input: WorkbookData): PlanningResult {
       atRiskClients: clients.filter((client) => client.status !== "COMPLETE").length,
     },
   };
+  assertFiniteCalculatedValues(result, "plan");
+  return result;
 }

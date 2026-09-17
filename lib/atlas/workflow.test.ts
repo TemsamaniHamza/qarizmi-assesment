@@ -26,6 +26,30 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("workbook workflow routes", () => {
+  it("returns a controlled error for finite source prices that overflow instead of serializing null revenues", async () => {
+    vi.mocked(readFile).mockResolvedValueOnce(changedCell("Clients", "F5", 1e308));
+    const response = await generate();
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body).toMatchObject({ ok: false, kind: "server", message: expect.stringContaining("non-finite") });
+    expect(body).not.toHaveProperty("data");
+    // A fresh request with the original workbook recovers normally.
+    const recovered = await (await generate()).json();
+    expect(recovered.data.plan.kpis).toMatchObject({ exportedT: 500, localT: 60, exportRevenueEur: 549500, localValueEur: 4500, totalValueEur: 554000 });
+  });
+
+  it.each([load, generate])("rejects overflowing expected totals in both Load and Plan (%#)", async route => {
+    const copy = XLSX.read(bytes, { type: "buffer" });
+    copy.Sheets.Farms.C5 = { t: "n", v: 1e308 };
+    copy.Sheets.Farms.C6 = { t: "n", v: 1e308 };
+    vi.mocked(readFile).mockResolvedValueOnce(XLSX.write(copy, { type: "buffer", bookType: "xlsx" }));
+    const response = await route();
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body).toMatchObject({ ok: false, kind: "server", message: expect.stringContaining("non-finite") });
+    expect(body).not.toHaveProperty("data");
+  });
+
   it("loads validated source and comparisons without allocating", async () => {
     const response = await load();
     expect(response.status).toBe(200);

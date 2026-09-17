@@ -5,6 +5,7 @@ import { buildEvidence } from "./evidence";
 import { compareProduction } from "./compare";
 import { plan } from "./plan";
 import { loadWorkbook } from "./workbook";
+import { NonFiniteCalculationError } from "./finite-values";
 import type { WorkflowAction, WorkflowResponse } from "./workflow-types";
 
 function respond(body: WorkflowResponse, status = 200) {
@@ -27,6 +28,9 @@ export async function runWorkflow(action: WorkflowAction): Promise<Response> {
       evidence: result ? buildEvidence(loaded.data, result) : null,
     } });
   } catch (error) {
+    if (error instanceof NonFiniteCalculationError) {
+      return respond({ ok: false, kind: "server", message: error.message }, 500);
+    }
     console.error("Atlas workbook workflow failed", error);
     return respond({ ok: false, kind: "server", message: "The workbook could not be processed. Please retry." }, 500);
   }

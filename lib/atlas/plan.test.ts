@@ -77,6 +77,18 @@ function fixture(farms: readonly FarmInput[], clients: readonly ClientInput[], c
 }
 
 describe("deterministic planner", () => {
+  it.each(["export", "local", "aggregate"] as const)("refuses non-finite %s values from finite inputs", async kind => {
+    const original = await baseline();
+    const input = kind === "local" ? { ...original, station: { ...original.station,
+      referenceExportPricePerTEur: { ...original.station.referenceExportPricePerTEur, D: 1e308 },
+    } } : { ...original, clients: original.clients.map(client => ({ ...client,
+      exportPricePerTEur: kind === "aggregate" ? 1e306 : 1e308,
+    })) };
+    const before = structuredClone(input);
+    expect(() => plan(input)).toThrow(/non-finite/);
+    expect(input).toEqual(before);
+  });
+
   it("replans a copied valid input at 495 t without changing the baseline", async () => {
     const original = await baseline();
     const copy = structuredClone(original);
